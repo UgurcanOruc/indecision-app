@@ -3,18 +3,52 @@ import AddOption from "./AddOption";
 import Action from "./Action";
 import Header from "./Header";
 import Options from "./Options";
+import OptionModal from './OptionModal';
 
 export default class IndecisionApp extends React.Component {
-  constructor(props) {
-    super(props);
-    this.deleteOptions = this.deleteOptions.bind(this);
-    this.pickOption = this.pickOption.bind(this);
-    this.addOption = this.addOption.bind(this);
-    this.deleteOption = this.deleteOption.bind(this);
-    this.state = {
-      subtitle: "Put your life in the hands of a computer",
-      options: [],
-    };
+  state = {
+    subtitle: "Put your life in the hands of a computer",
+    options: [],
+    selectedOption: undefined,
+  };
+
+  deleteOptions = () => {
+    this.setState(() => ({ options: [] }));
+  }
+
+  deleteOption = (option) => {
+    this.setState((prevState) => {
+      return {
+        options: prevState.options.filter((opt) => opt !== option),
+      };
+    });
+  }
+
+  pickOption = () => {
+    const randomNum = Math.floor(Math.random() * this.state.options.length);
+    const option = this.state.options[randomNum];
+    this.setState(() => ({
+      selectedOption: option
+    }));
+  }
+
+  clearSelectedOption = () => {
+    this.setState(() => ({
+      selectedOption: undefined
+    }));
+    
+  }
+
+  addOption = (option) => {
+    if (!option) {
+      return "Enter valid value to add item";
+    } else if (this.state.options.indexOf(option) > -1) {
+      return "This option already exists.";
+    }
+
+    this.setState((prevState) => ({
+      options: prevState.options.concat([option]),
+    }));
   }
 
   componentDidMount() {
@@ -38,37 +72,6 @@ export default class IndecisionApp extends React.Component {
     console.log("unmount");
   }
 
-  deleteOptions() {
-    this.setState(() => ({ options: [] }));
-  }
-
-  deleteOption(option) {
-    this.setState((prevState) => {
-      return {
-        options: prevState.options.filter((opt) => opt !== option),
-      };
-    });
-  }
-
-  pickOption() {
-    this.setState((prevState) => {
-      var index = Math.floor(Math.random() * prevState.options.length);
-      return prevState.options[index];
-    });
-  }
-
-  addOption(option) {
-    if (!option) {
-      return "Enter valid value to add item";
-    } else if (this.state.options.indexOf(option) > -1) {
-      return "This option already exists.";
-    }
-
-    this.setState((prevState) => ({
-      options: prevState.options.concat([option]),
-    }));
-  }
-
   render() {
     return (
       <div>
@@ -83,6 +86,10 @@ export default class IndecisionApp extends React.Component {
           options={this.state.options}
         />
         <AddOption addOption={this.addOption} />
+        <OptionModal
+          selectedOption={this.state.selectedOption}
+          clearSelectedOption={this.clearSelectedOption}
+        />
       </div>
     );
   }
